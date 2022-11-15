@@ -5,7 +5,7 @@
         id="fieldset-1"
         label="Введите количество букв"
         label-for="count" >
-            <b-form-spinbutton class="mt-3" id="count" v-model="letterCount" min="0" max="8" inline></b-form-spinbutton>
+            <b-form-spinbutton class="mt-3" id="count" v-model="letterCount" min="0" max="10" inline></b-form-spinbutton>
         </b-form-group>
         <b-row>
             <b-col class="mt-3" cols="1" v-for="(item, i) in letterCount" :key="i">
@@ -16,7 +16,7 @@
 
         <div class="result-block">
             <div class="result-block__list" v-if="!isNotFound">
-                <b-button class="mt-1" variant="outline-secondary" v-for="word in currentWords" :key="word.id" @click="showInfo(word)">{{word.name}}</b-button>
+                <b-button class="mt-1" variant="outline-secondary" v-for="word in currentWords" :key="word.id" @click="showInfo(word)" v-html="word.html || word.name"></b-button>
             </div>
             <b-alert v-else show variant="info">Ничего не найдено</b-alert>
         </div>
@@ -37,21 +37,31 @@
         },
         methods: {
             findWords() {
+                this.currentWords = null;
                 this.currentWords = words.filter(el => el.name.length === this.letterCount);
-                if (this.currentLetters.every(el => el === undefined)) return;
+                console.log(this.currentWords);
+                if (this.currentLetters.every(el => el === undefined || '')) return;
+                console.log(this.currentLetters);
                 let reg = '';
                 this.currentLetters.forEach(letter => {
-                    if (letter === undefined) {
+                    if (letter === undefined || letter ==='') {
                         reg += '.'
                     } else {
                         reg += letter
                     }
                 });
-                this.currentWords = this.currentWords.filter(elem => elem.name.match(reg));
+                this.currentWords = this.currentWords.filter(elem => elem.name.match(new RegExp(reg, 'igs')));
                 this.isNotFound = this.currentWords.length < 1;
+                if (!this.isNotFound){
+                    this.currentWords.forEach(elem => {
+                        elem.html = elem.name.split('').map((letter, i) => {
+                            return this.currentLetters[i] === letter.toLowerCase() ? `<mark>${letter}</mark>` : letter;
+                        }).join('');
+                    });
+                }
+                console.log(this.currentWords);
             },
             showInfo(word){
-                console.log(word.similars);
                 this.model = '';
                 const synonymsTitle = {
                         name: "Синонимы",
@@ -133,5 +143,8 @@
     .result-block__list button{
         width: 100%;
         margin-top: 10px;
+    }
+    mark, .mark{
+        padding: 0;
     }
 </style>
