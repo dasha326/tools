@@ -21,6 +21,15 @@ const routes = [
       inMenu: true,
       menuTitle: 'Слова'
     }
+  },
+  {
+    path: '/proportions',
+    name: 'proportions',
+    component: () => import('../views/ProportionsView.vue'),
+    meta: {
+      inMenu: true,
+      menuTitle: 'Пропорции'
+    }
   }
 ]
 
